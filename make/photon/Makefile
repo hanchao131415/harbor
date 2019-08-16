@@ -17,7 +17,7 @@ WGET=$(shell which wget)
 
 # docker parameters
 DOCKERCMD=$(shell which docker)
-DOCKERBUILD=$(DOCKERCMD) build --pull
+DOCKERBUILD=$(DOCKERCMD) build
 DOCKERRMIMAGE=$(DOCKERCMD) rmi
 DOCKERIMASES=$(DOCKERCMD) images
 
@@ -100,6 +100,13 @@ DOCKERFILENAME_CHART_SERVER=Dockerfile
 CHART_SERVER_CODE_BASE=https://github.com/helm/chartmuseum.git
 CHART_SERVER_MAIN_PATH=cmd/chartmuseum
 CHART_SERVER_BIN_NAME=chartm
+
+build_base_docker:
+	for name in chartserver clair common core db jobservice log nginx notary portal prepare redis registry registryctl; do \
+		echo $(name) ; \
+		$(DOCKERBUILD) -f $(DOCKERFILEPATH)/$(name) -t cicd.harbor.bitsf.xin/harbor-depend/$(name):base . ; \
+		$(DOCKERBUILD) push cicd.harbor.bitsf.xin/harbor-depend/$(name):base ; \
+	done
 
 _build_prepare:
 	@echo "building prepare container for photon..."
